@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-ha-headless
+  namespace: integration-opensearch-ha
+spec:
+  clusterIP: None
+  selector:
+    app: opensearch-ha
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-ha
+  namespace: integration-opensearch-ha
+spec:
+  serviceName: opensearch-ha-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: opensearch-ha
+  template:
+    metadata:
+      labels:
+        app: opensearch-ha
+    spec:
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.14.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              opensearch \
+                -Ecluster.name=prototype-opensearch-ha \
+                -Enode.name=${NODE_NAME} \
+                -Ediscovery.seed_hosts=opensearch-ha-0.opensearch-ha-headless,opensearch-ha-1.opensearch-ha-headless,opensearch-ha-2.opensearch-ha-headless \
+                -Ecluster.initial_cluster_manager_nodes=opensearch-ha-0,opensearch-ha-1,opensearch-ha-2
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - { name: "DISABLE_INSTALL_DEMO_CONFIG", value: "true" }
+            - { name: "DISABLE_SECURITY_PLUGIN", value: "true" }
+            - { name: "OPENSEARCH_JAVA_OPTS", value: "-Xms512m -Xmx512m" }
+          ports:
+            - containerPort: 9200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-ha
+  namespace: integration-opensearch-ha
+spec:
+  selector:
+    app: opensearch-ha
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-ha-nodeport
+  namespace: integration-opensearch-ha
+spec:
+  type: NodePort
+  selector:
+    app: opensearch-ha
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+      nodePort: 30201
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-ha-dashboards
+  namespace: integration-opensearch-ha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-ha-dashboards
+  template:
+    metadata:
+      labels:
+        app: opensearch-ha-dashboards
+    spec:
+      containers:
+        - name: dashboards
+          image: opensearchproject/opensearch-dashboards:2.14.0
+          env:
+            - name: OPENSEARCH_HOSTS
+              value: '["http://opensearch-ha:9200"]'
+            - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+              value: "true"
+          ports:
+            - containerPort: 5601
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-ha-dashboards
+  namespace: integration-opensearch-ha
+spec:
+  selector:
+    app: opensearch-ha-dashboards
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-ha-dashboards-nodeport
+  namespace: integration-opensearch-ha
+spec:
+  type: NodePort
+  selector:
+    app: opensearch-ha-dashboards
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      nodePort: 30082
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: opensearch-ha-seed
+  namespace: integration-opensearch-ha
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: curlimages/curl:8.8.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              until curl -s http://opensearch-ha:9200/_cluster/health >/dev/null; do sleep 2; done
+              curl -s -X PUT http://opensearch-ha:9200/prototype_docs -H 'Content-Type: application/json' -d '{"settings":{"number_of_shards":1,"number_of_replicas":1}}' >/dev/null || true
+              curl -s -X PUT 'http://opensearch-ha:9200/prototype_docs/_doc/1?refresh=true' -H 'Content-Type: application/json' -d '{"message":"hello opensearch ha","source":"seed-ha"}' >/dev/null

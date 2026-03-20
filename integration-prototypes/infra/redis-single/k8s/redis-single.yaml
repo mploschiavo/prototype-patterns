@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-single
+  namespace: integration-redis-single
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-single
+  template:
+    metadata:
+      labels:
+        app: redis-single
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-single
+  namespace: integration-redis-single
+spec:
+  selector:
+    app: redis-single
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-single-nodeport
+  namespace: integration-redis-single
+spec:
+  type: NodePort
+  selector:
+    app: redis-single
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      nodePort: 30379
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-single-seed
+  namespace: integration-redis-single
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: redis-seed
+          image: redis:7-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              until redis-cli -h redis-single -p 6379 ping; do sleep 1; done
+              redis-cli -h redis-single -p 6379 set demo:key '{"id":1,"value":"hello redis single"}'

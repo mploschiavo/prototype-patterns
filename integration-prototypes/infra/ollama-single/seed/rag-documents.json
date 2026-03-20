@@ -1,0 +1,14 @@
+[
+  {
+    "id": "doc-1",
+    "text": "Prototype patterns repository includes Kafka, Redis, Postgres, OpenSearch, and Ollama integration demos."
+  },
+  {
+    "id": "doc-2",
+    "text": "MicroK8s deployments use kustomize manifests and NodePort services for local testing."
+  },
+  {
+    "id": "doc-3",
+    "text": "Agentic MCP examples provide tools for rag.search and agent.answer over Ollama."
+  }
+]

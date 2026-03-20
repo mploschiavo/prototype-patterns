@@ -1,0 +1,25 @@
+services:
+  ollama:
+    image: ollama/ollama:0.3.14
+    container_name: prototype-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./seed:/seed:ro
+
+  ollama-seed:
+    image: ollama/ollama:0.3.14
+    container_name: prototype-ollama-seed
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ./seed:/seed:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      /seed/seed-ollama.sh
+
+volumes:
+  ollama_data:

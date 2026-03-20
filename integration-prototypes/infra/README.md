@@ -1,6 +1,11 @@
 # Integration Infrastructure Prototypes
 
-This folder provides containerized infrastructure scenarios used by the language-specific prototypes.
+This folder provides infrastructure scenarios used by the language-specific prototypes.
+
+Deployment modes:
+
+- Local Docker Compose
+- MicroK8s (kustomize manifests)
 
 ## Scenarios
 
@@ -11,8 +16,17 @@ This folder provides containerized infrastructure scenarios used by the language
 - `redis-ha`: Three-node Redis Cluster with seeded key
 - `opensearch-single`: Single-node OpenSearch with seeded document
 - `opensearch-ha`: Three-node OpenSearch cluster with seeded document
+- `ollama-single`: Single-node Ollama with seeded model and RAG documents
 
-## Quick Start
+## Quick Start (Local)
+
+Generic script:
+
+```bash
+./scripts/deploy-local.sh <scenario>
+```
+
+Examples:
 
 Kafka single:
 
@@ -63,6 +77,30 @@ cd opensearch-ha
 docker compose up -d
 ```
 
+Ollama single:
+
+```bash
+cd ollama-single
+docker compose up -d
+```
+
+## Quick Start (MicroK8s)
+
+Generic script:
+
+```bash
+./scripts/deploy-microk8s.sh <scenario> apply
+```
+
+Examples:
+
+```bash
+./scripts/deploy-microk8s.sh kafka-single apply
+./scripts/deploy-microk8s.sh postgres apply
+./scripts/deploy-microk8s.sh opensearch-ha apply
+./scripts/deploy-microk8s.sh ollama-single apply
+```
+
 ## Default Connection Endpoints
 
 - Kafka single bootstrap: `localhost:9092`
@@ -72,3 +110,4 @@ docker compose up -d
 - Redis HA startup nodes: `localhost:6379`, `localhost:6380`, `localhost:6381`
 - OpenSearch single: `http://localhost:9200`
 - OpenSearch HA nodes: `http://localhost:9200`, `http://localhost:9201`, `http://localhost:9202`
+- Ollama single: `http://localhost:11434`

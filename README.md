@@ -34,11 +34,15 @@ This repository is an academic prototype workspace that includes:
   - `services/hello-world/`
   - `services/hello-world-logger/`
 - `integration-prototypes/`
-  - `infra/` (Kafka/Postgres/Redis/OpenSearch container scenarios)
-  - `python/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
-  - `nodejs/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
-  - `java/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
-  - `csharp/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
+  - `infra/` (Kafka/Postgres/Redis/OpenSearch/Ollama scenarios for Docker + microk8s)
+  - `python/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
+  - `nodejs/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
+  - `java/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
+  - `csharp/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
+- `examples/cloud-k8s-setup/`
+  - bash + Python cluster setup examples for AWS/Azure/GCP
+- `observability-demo/hello-world-stack/`
+  - local + microk8s Grafana/Prometheus/Loki/Tempo/OTel Collector demo stack
 
 Each project has its own README with run/test/deploy commands.
 

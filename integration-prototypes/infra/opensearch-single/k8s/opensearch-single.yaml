@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-single
+  namespace: integration-opensearch-single
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-single
+  template:
+    metadata:
+      labels:
+        app: opensearch-single
+    spec:
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.14.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              opensearch \
+                -Ecluster.name=prototype-opensearch-single \
+                -Enode.name=opensearch-single-1 \
+                -Ediscovery.type=single-node
+          env:
+            - { name: "DISABLE_INSTALL_DEMO_CONFIG", value: "true" }
+            - { name: "DISABLE_SECURITY_PLUGIN", value: "true" }
+            - { name: "OPENSEARCH_JAVA_OPTS", value: "-Xms512m -Xmx512m" }
+          ports:
+            - containerPort: 9200
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboards
+  namespace: integration-opensearch-single
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-dashboards
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboards
+    spec:
+      containers:
+        - name: dashboards
+          image: opensearchproject/opensearch-dashboards:2.14.0
+          env:
+            - name: OPENSEARCH_HOSTS
+              value: '["http://opensearch-single:9200"]'
+            - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+              value: "true"
+          ports:
+            - containerPort: 5601
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-single
+  namespace: integration-opensearch-single
+spec:
+  selector:
+    app: opensearch-single
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-single-nodeport
+  namespace: integration-opensearch-single
+spec:
+  type: NodePort
+  selector:
+    app: opensearch-single
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+      nodePort: 30200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  namespace: integration-opensearch-single
+spec:
+  selector:
+    app: opensearch-dashboards
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards-nodeport
+  namespace: integration-opensearch-single
+spec:
+  type: NodePort
+  selector:
+    app: opensearch-dashboards
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      nodePort: 30081
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: opensearch-single-seed
+  namespace: integration-opensearch-single
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: curlimages/curl:8.8.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              until curl -s http://opensearch-single:9200/_cluster/health >/dev/null; do sleep 2; done
+              curl -s -X PUT http://opensearch-single:9200/prototype_docs -H 'Content-Type: application/json' -d '{"settings":{"number_of_shards":1,"number_of_replicas":0}}' >/dev/null || true
+              curl -s -X PUT 'http://opensearch-single:9200/prototype_docs/_doc/1?refresh=true' -H 'Content-Type: application/json' -d '{"message":"hello opensearch single","source":"seed-single"}' >/dev/null

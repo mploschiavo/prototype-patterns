@@ -1,0 +1,14 @@
+[
+  {
+    "id": "doc-1",
+    "text": "Kafka integration demos include producer and consumer examples for single-node and HA setups."
+  },
+  {
+    "id": "doc-2",
+    "text": "Redis and Postgres demos include seeded data and language-specific REST services."
+  },
+  {
+    "id": "doc-3",
+    "text": "Ollama MCP server supports rag.search and agent.answer tools."
+  }
+]

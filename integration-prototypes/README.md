@@ -1,4 +1,4 @@
-# Integration Prototypes (Kafka / Postgres / Redis / OpenSearch)
+# Integration Prototypes (Kafka / Postgres / Redis / OpenSearch / Ollama)
 
 This workspace provides academic, language-by-language prototypes for integration patterns:
 
@@ -13,10 +13,13 @@ This workspace provides academic, language-by-language prototypes for integratio
 - REST + OpenSearch:
   - fetch one value from single-node OpenSearch
   - fetch one value from three-node OpenSearch cluster
+- MCP + Ollama + RAG:
+  - single-node Ollama infra with seeded model/documents
+  - language-specific MCP-style agent servers with `rag.search` and `agent.answer`
 
 ## Layout
 
-- `infra/`: shared docker-compose infrastructure scenarios
+- `infra/`: shared infrastructure scenarios for local Docker and microk8s
 - `python/`: Python implementations + tests
 - `nodejs/`: Node.js implementations + tests
 - `java/`: Java implementations + tests

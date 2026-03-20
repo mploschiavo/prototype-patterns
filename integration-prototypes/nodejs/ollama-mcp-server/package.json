@@ -1,0 +1,8 @@
+{
+  "name": "node-ollama-mcp-server-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test ollama-mcp-server.test.js"
+  }
+}
