@@ -1,0 +1,46 @@
+services:
+  opensearch-1:
+    image: opensearchproject/opensearch:2.14.0
+    container_name: opensearch-single-1
+    environment:
+      cluster.name: prototype-opensearch-single
+      node.name: opensearch-single-1
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch_single_data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.14.0
+    container_name: opensearch-single-dashboards
+    depends_on:
+      - opensearch-1
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch-1:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    ports:
+      - "5601:5601"
+
+  opensearch-init:
+    image: curlimages/curl:8.8.0
+    container_name: opensearch-single-init
+    depends_on:
+      - opensearch-1
+    volumes:
+      - ./seed:/seed:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      /seed/seed-single.sh
+
+volumes:
+  opensearch_single_data:

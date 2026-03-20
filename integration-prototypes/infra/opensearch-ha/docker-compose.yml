@@ -1,0 +1,97 @@
+services:
+  opensearch-ha-1:
+    image: opensearchproject/opensearch:2.14.0
+    container_name: opensearch-ha-1
+    environment:
+      cluster.name: prototype-opensearch-ha
+      node.name: opensearch-ha-1
+      discovery.seed_hosts: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      cluster.initial_cluster_manager_nodes: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      bootstrap.memory_lock: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch_ha_1_data:/usr/share/opensearch/data
+
+  opensearch-ha-2:
+    image: opensearchproject/opensearch:2.14.0
+    container_name: opensearch-ha-2
+    environment:
+      cluster.name: prototype-opensearch-ha
+      node.name: opensearch-ha-2
+      discovery.seed_hosts: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      cluster.initial_cluster_manager_nodes: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      bootstrap.memory_lock: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9201:9200"
+      - "9601:9600"
+    volumes:
+      - opensearch_ha_2_data:/usr/share/opensearch/data
+
+  opensearch-ha-3:
+    image: opensearchproject/opensearch:2.14.0
+    container_name: opensearch-ha-3
+    environment:
+      cluster.name: prototype-opensearch-ha
+      node.name: opensearch-ha-3
+      discovery.seed_hosts: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      cluster.initial_cluster_manager_nodes: opensearch-ha-1,opensearch-ha-2,opensearch-ha-3
+      bootstrap.memory_lock: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9202:9200"
+      - "9602:9600"
+    volumes:
+      - opensearch_ha_3_data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.14.0
+    container_name: opensearch-ha-dashboards
+    depends_on:
+      - opensearch-ha-1
+      - opensearch-ha-2
+      - opensearch-ha-3
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch-ha-1:9200","http://opensearch-ha-2:9200","http://opensearch-ha-3:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    ports:
+      - "5602:5601"
+
+  opensearch-init:
+    image: curlimages/curl:8.8.0
+    container_name: opensearch-ha-init
+    depends_on:
+      - opensearch-ha-1
+      - opensearch-ha-2
+      - opensearch-ha-3
+    volumes:
+      - ./seed:/seed:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      /seed/seed-ha.sh
+
+volumes:
+  opensearch_ha_1_data:
+  opensearch_ha_2_data:
+  opensearch_ha_3_data:

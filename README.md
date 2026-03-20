@@ -33,6 +33,12 @@ This repository is an academic prototype workspace that includes:
   - `patterns/`
   - `services/hello-world/`
   - `services/hello-world-logger/`
+- `integration-prototypes/`
+  - `infra/` (Kafka/Postgres/Redis/OpenSearch container scenarios)
+  - `python/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
+  - `nodejs/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
+  - `java/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
+  - `csharp/` (Kafka clients + Postgres/Redis/OpenSearch REST prototypes)
 
 Each project has its own README with run/test/deploy commands.
 

@@ -1,0 +1,11 @@
+{
+  "name": "node-redis-ha-rest-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "redis": "4.7.0"
+  },
+  "scripts": {
+    "test": "node --test redis-ha-rest.test.js"
+  }
+}

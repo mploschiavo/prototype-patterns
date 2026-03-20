@@ -1,0 +1,8 @@
+{
+  "name": "node-opensearch-ha-rest-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test opensearch-ha-rest.test.js"
+  }
+}

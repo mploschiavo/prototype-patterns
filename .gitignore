@@ -8,6 +8,7 @@
 
 # Java
 **/build/
+**/target/
 
 # .NET
 **/bin/

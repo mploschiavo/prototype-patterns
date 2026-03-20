@@ -1,0 +1,11 @@
+{
+  "name": "node-kafka-ha-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "kafkajs": "2.2.4"
+  },
+  "scripts": {
+    "test": "node --test kafka-ha.test.js"
+  }
+}

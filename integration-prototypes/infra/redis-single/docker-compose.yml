@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis-single
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_single_data:/data
+
+  redis-seed:
+    image: redis:7-alpine
+    depends_on:
+      - redis
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      until redis-cli -h redis -p 6379 ping; do
+        sleep 1
+      done
+      redis-cli -h redis -p 6379 set demo:key '{"id":1,"value":"hello redis single"}'
+      echo "seed complete"
+
+volumes:
+  redis_single_data:

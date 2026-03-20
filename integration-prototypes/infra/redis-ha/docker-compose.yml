@@ -1,0 +1,48 @@
+services:
+  redis-1:
+    image: redis:7-alpine
+    container_name: redis-ha-1
+    command: ["redis-server", "--port", "6379", "--cluster-enabled", "yes", "--cluster-config-file", "nodes.conf", "--cluster-node-timeout", "5000", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_ha_1_data:/data
+
+  redis-2:
+    image: redis:7-alpine
+    container_name: redis-ha-2
+    command: ["redis-server", "--port", "6379", "--cluster-enabled", "yes", "--cluster-config-file", "nodes.conf", "--cluster-node-timeout", "5000", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_ha_2_data:/data
+
+  redis-3:
+    image: redis:7-alpine
+    container_name: redis-ha-3
+    command: ["redis-server", "--port", "6379", "--cluster-enabled", "yes", "--cluster-config-file", "nodes.conf", "--cluster-node-timeout", "5000", "--appendonly", "yes"]
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_ha_3_data:/data
+
+  redis-cluster-init:
+    image: redis:7-alpine
+    container_name: redis-ha-init
+    depends_on:
+      - redis-1
+      - redis-2
+      - redis-3
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      until redis-cli -h redis-1 -p 6379 ping; do sleep 1; done
+      until redis-cli -h redis-2 -p 6379 ping; do sleep 1; done
+      until redis-cli -h redis-3 -p 6379 ping; do sleep 1; done
+      yes yes | redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 --cluster-replicas 0
+      redis-cli -c -h redis-1 -p 6379 set demo:key '{"id":1,"value":"hello redis ha"}'
+      echo "cluster initialized"
+
+volumes:
+  redis_ha_1_data:
+  redis_ha_2_data:
+  redis_ha_3_data:

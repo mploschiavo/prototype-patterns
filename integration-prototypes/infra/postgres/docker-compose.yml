@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: prototype-postgres
+    environment:
+      POSTGRES_DB: prototype_db
+      POSTGRES_USER: prototype_user
+      POSTGRES_PASSWORD: prototype_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
