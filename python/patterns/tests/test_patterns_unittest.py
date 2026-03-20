@@ -32,6 +32,7 @@ from prototype_patterns.behavioral import (
     strategy,
     template_method,
 )
+from prototype_patterns import pattern_runner
 
 
 class PatternTests(unittest.TestCase):
@@ -108,6 +109,23 @@ class PatternTests(unittest.TestCase):
 
     def test_memento(self) -> None:
         self.assertEqual(memento.demo(), "draft")
+
+    def test_pattern_runner_lists_all_patterns(self) -> None:
+        patterns = pattern_runner.list_patterns()
+        self.assertEqual(len(patterns), 24)
+        self.assertEqual(patterns[0], ("singleton", "creational"))
+        self.assertEqual(patterns[-1], ("memento", "behavioral"))
+
+    def test_pattern_runner_runs_single_pattern(self) -> None:
+        self.assertTrue(pattern_runner.run_pattern("singleton"))
+        self.assertEqual(
+            pattern_runner.run_pattern("chain of responsibility"),
+            ("team-lead", "manager", "unhandled:4"),
+        )
+
+    def test_pattern_runner_unknown_pattern(self) -> None:
+        with self.assertRaises(ValueError):
+            pattern_runner.run_pattern("no-such-pattern")
 
 
 if __name__ == "__main__":

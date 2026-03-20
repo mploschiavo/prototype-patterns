@@ -4,6 +4,9 @@
   "description": "Prototype implementations of design patterns in Node.js",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "pattern": "node run-pattern.js",
+    "pattern:list": "node run-pattern.js --list",
+    "pattern:all": "node run-pattern.js --all"
   }
 }

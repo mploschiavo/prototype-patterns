@@ -77,6 +77,12 @@ public final class PatternTests {
         assertEquals(List.of("alex:ready"), MediatorPattern.demo(), "mediator");
         assertEquals("draft", MementoPattern.demo(), "memento");
 
+        assertTrue(PatternRegistry.list().size() == 24, "registry size");
+        assertEquals(true, PatternRegistry.runPattern("singleton"), "registry singleton");
+        assertEquals(List.of("team-lead", "manager", "unhandled:4"), PatternRegistry.runPattern("chain of responsibility"),
+                "registry normalized id");
+        assertTrue(PatternRegistry.runAllPatterns().size() == 24, "registry all");
+
         System.out.println("Java pattern tests passed: " + passed);
     }
 }

@@ -46,6 +46,25 @@ This repository is an academic prototype workspace that includes:
 
 Each project has its own README with run/test/deploy commands.
 
+## Explore One Pattern At A Time
+
+Use the root dispatcher script to run a single pattern in any language:
+
+```bash
+./scripts/run-pattern.sh python --list
+./scripts/run-pattern.sh python --pattern singleton
+./scripts/run-pattern.sh nodejs --pattern "chain of responsibility"
+./scripts/run-pattern.sh java --all
+./scripts/run-pattern.sh csharp --pattern adapter
+```
+
+Language-specific scripts are available under:
+
+- `python/patterns/scripts/run-pattern.sh`
+- `nodejs/patterns/scripts/run-pattern.sh`
+- `java/patterns/scripts/run-pattern.sh`
+- `csharp/patterns/scripts/run-pattern.sh`
+
 ## Pattern Coverage (Per Language)
 
 1. Singleton
