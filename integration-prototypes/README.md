@@ -1,36 +1,44 @@
 # Integration Prototypes (Kafka / Postgres / Redis / OpenSearch / Ollama)
 
-This workspace provides academic, language-by-language prototypes for integration patterns:
+This workspace provides language-by-language integration examples with the same scenario set in Python, Node.js, Java, and C#.
 
-- Kafka producer/consumer clients:
-  - single-node Kafka
-  - three-node Kafka cluster
-- REST + Postgres:
-  - fetch one record from seeded table
-- REST + Redis:
-  - fetch one value from single-node Redis
-  - fetch one value from three-node Redis cluster
-- REST + OpenSearch:
-  - fetch one value from single-node OpenSearch
-  - fetch one value from three-node OpenSearch cluster
-- MCP + Ollama + RAG:
-  - single-node Ollama infra with seeded model/documents
-  - language-specific MCP-style agent servers with `rag.search` and `agent.answer`
+## Scenarios Covered
 
-## Layout
+- Kafka clients:
+  - `kafka-single` (one-node Kafka)
+  - `kafka-ha` (three-node Kafka)
+- Postgres REST:
+  - `postgres-rest`
+- Redis REST:
+  - `redis-single-rest`
+  - `redis-ha-rest`
+- OpenSearch REST:
+  - `opensearch-single-rest`
+  - `opensearch-ha-rest`
+- Ollama MCP + RAG:
+  - `ollama-mcp-server`
 
-- `infra/`: shared infrastructure scenarios for local Docker and microk8s
-- `python/`: Python implementations + tests
-- `nodejs/`: Node.js implementations + tests
-- `java/`: Java implementations + tests
-- `csharp/`: C# implementations + tests
+## Folder Layout
 
-Each scenario folder has its own `README.md` and test suite.
+- `infra/`: shared infrastructure scenarios (local Docker + MicroK8s)
+- `python/`: Python clients/services per scenario
+- `nodejs/`: Node.js clients/services per scenario
+- `java/`: Java clients/services per scenario
+- `csharp/`: C# clients/services per scenario
+- `scripts/`: helper entrypoints for local and MicroK8s runs
 
-## Client Packaging
+## Prerequisites
 
-All language client projects are now packaged with:
+- Docker + Docker Compose
+- Python 3 (for test runner and helper tests)
+- Language runtime(s) you want to run directly (`node`, `java`, `dotnet`, `python3`)
+- For Kubernetes mode: MicroK8s (or kubectl-compatible cluster)
 
+## Client Packaging Model
+
+Each language project includes:
+
+- `.dockerignore`
 - `docker/Dockerfile`
 - `docker/run.sh`
 - `k8s/namespace.yaml`
@@ -38,44 +46,116 @@ All language client projects are now packaged with:
 - `k8s/kustomization.yaml`
 - `k8s/run.sh`
 
-For Kafka clients, `docker/entrypoint.sh` is also included to switch between producer and consumer mode.
+Kafka projects also include `docker/entrypoint.sh` to switch producer/consumer mode.
 
-## Run Locally
+## Helper Scripts
 
-Generic helper:
-
-```bash
-./scripts/run-client-local.sh <python|nodejs|java|csharp> <project> [producer|consumer]
-```
-
-Examples:
-
-```bash
-./scripts/run-client-local.sh python postgres-rest
-./scripts/run-client-local.sh nodejs opensearch-ha-rest
-./scripts/run-client-local.sh java kafka-single producer
-./scripts/run-client-local.sh csharp kafka-ha consumer
-```
-
-## Run On MicroK8s
-
-Generic helper:
-
-```bash
-./scripts/deploy-client-microk8s.sh <python|nodejs|java|csharp> <project> [apply|delete]
-```
-
-Examples:
-
-```bash
-./scripts/deploy-client-microk8s.sh python postgres-rest apply
-./scripts/deploy-client-microk8s.sh nodejs redis-single-rest apply
-./scripts/deploy-client-microk8s.sh java kafka-ha apply
-./scripts/deploy-client-microk8s.sh csharp ollama-mcp-server apply
-```
-
-List all packaged client projects:
+From `integration-prototypes/`:
 
 ```bash
 ./scripts/list-client-projects.sh
+./scripts/run-client-local.sh <python|nodejs|java|csharp> <project> [producer|consumer]
+./scripts/deploy-client-microk8s.sh <python|nodejs|java|csharp> <project> [apply|delete]
+```
+
+## Local End-to-End Examples
+
+### Example A: Postgres + Python REST
+
+```bash
+cd integration-prototypes
+
+# 1) Start infra
+./infra/scripts/deploy-local.sh postgres
+
+# 2) Run client (containerized)
+./scripts/run-client-local.sh python postgres-rest
+
+# 3) Verify
+curl -s "http://localhost:8080/item?id=1"
+```
+
+### Example B: Kafka Single + Node.js Producer/Consumer
+
+```bash
+cd integration-prototypes
+
+# 1) Start Kafka infra
+./infra/scripts/deploy-local.sh kafka-single
+
+# 2) Produce one batch
+./scripts/run-client-local.sh nodejs kafka-single producer
+
+# 3) Consume
+./scripts/run-client-local.sh nodejs kafka-single consumer
+```
+
+### Example C: Redis HA + Java REST
+
+```bash
+cd integration-prototypes
+
+./infra/scripts/deploy-local.sh redis-ha
+./scripts/run-client-local.sh java redis-ha-rest
+curl -s "http://localhost:8080/value?key=demo:key"
+```
+
+### Example D: OpenSearch Single + C# REST
+
+```bash
+cd integration-prototypes
+
+./infra/scripts/deploy-local.sh opensearch-single
+./scripts/run-client-local.sh csharp opensearch-single-rest
+curl -s "http://localhost:8080/document?id=1"
+```
+
+### Example E: Ollama MCP + Python
+
+```bash
+cd integration-prototypes
+
+./infra/scripts/deploy-local.sh ollama-single
+./scripts/run-client-local.sh python ollama-mcp-server
+```
+
+## MicroK8s End-to-End Example
+
+```bash
+cd integration-prototypes
+
+# 1) Deploy infra scenario
+./infra/scripts/deploy-microk8s.sh redis-single apply
+
+# 2) Deploy language client
+./scripts/deploy-client-microk8s.sh python redis-single-rest apply
+
+# 3) Access client
+microk8s kubectl port-forward -n integration-clients service/python-redis-single-rest 8080:8080
+curl -s "http://localhost:8080/value?key=demo:key"
+
+# 4) Cleanup
+./scripts/deploy-client-microk8s.sh python redis-single-rest delete
+./infra/scripts/deploy-microk8s.sh redis-single delete
+```
+
+## Running Tests
+
+```bash
+python3 -m unittest -v tests/test_client_packaging.py
+```
+
+For per-language tests, see each scenario README under language folders.
+
+## Cleanup Commands (Local)
+
+```bash
+./infra/scripts/deploy-local.sh kafka-single down
+./infra/scripts/deploy-local.sh kafka-ha down
+./infra/scripts/deploy-local.sh postgres down
+./infra/scripts/deploy-local.sh redis-single down
+./infra/scripts/deploy-local.sh redis-ha down
+./infra/scripts/deploy-local.sh opensearch-single down
+./infra/scripts/deploy-local.sh opensearch-ha down
+./infra/scripts/deploy-local.sh ollama-single down
 ```

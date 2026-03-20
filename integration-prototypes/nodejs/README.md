@@ -1,26 +1,83 @@
 # Node.js Integration Prototypes
 
-Scenarios included:
+Node.js implementations of all integration scenarios in this repository.
 
-- `kafka-single`: producer + consumer for one-node Kafka
-- `kafka-ha`: producer + consumer for three-node Kafka
-- `postgres-rest`: REST service reading one record from Postgres
-- `redis-single-rest`: REST service reading one key from Redis single node
-- `redis-ha-rest`: REST service reading one key from Redis cluster
-- `opensearch-single-rest`: REST service reading one document value from single-node OpenSearch
-- `opensearch-ha-rest`: REST service reading one document value from OpenSearch cluster
-- `ollama-mcp-server`: MCP-style agent server with RAG + Ollama tool calls
+## Projects
 
-Each project includes container packaging in `docker/` and `k8s/`.
+- `kafka-single`
+- `kafka-ha`
+- `postgres-rest`
+- `redis-single-rest`
+- `redis-ha-rest`
+- `opensearch-single-rest`
+- `opensearch-ha-rest`
+- `ollama-mcp-server`
 
-Run locally:
+Each project includes `docker/` and `k8s/` packaging.
+
+## Prerequisites
+
+- Docker + Docker Compose
+- Node.js + npm
+- For Kubernetes mode: MicroK8s and `microk8s kubectl`
+
+## List Available Client Projects
 
 ```bash
-../scripts/run-client-local.sh nodejs <project> [producer|consumer]
+../scripts/list-client-projects.sh | grep '^nodejs/'
 ```
 
-Deploy to MicroK8s:
+## Local Scenario Examples
+
+### Example: Postgres REST
 
 ```bash
-../scripts/deploy-client-microk8s.sh nodejs <project> [apply|delete]
+# from integration-prototypes/nodejs
+../infra/scripts/deploy-local.sh postgres
+../scripts/run-client-local.sh nodejs postgres-rest
+curl -s "http://localhost:8080/item?id=1"
 ```
+
+### Example: Kafka Producer + Consumer
+
+```bash
+# from integration-prototypes/nodejs
+../infra/scripts/deploy-local.sh kafka-single
+../scripts/run-client-local.sh nodejs kafka-single producer
+../scripts/run-client-local.sh nodejs kafka-single consumer
+```
+
+### Example: Ollama MCP
+
+```bash
+# from integration-prototypes/nodejs
+../infra/scripts/deploy-local.sh ollama-single
+../scripts/run-client-local.sh nodejs ollama-mcp-server
+```
+
+## MicroK8s Scenario Example
+
+```bash
+# from integration-prototypes/nodejs
+../infra/scripts/deploy-microk8s.sh redis-single apply
+../scripts/deploy-client-microk8s.sh nodejs redis-single-rest apply
+microk8s kubectl port-forward -n integration-clients service/nodejs-redis-single-rest 8080:8080
+curl -s "http://localhost:8080/value?key=demo:key"
+```
+
+Cleanup:
+
+```bash
+../scripts/deploy-client-microk8s.sh nodejs redis-single-rest delete
+../infra/scripts/deploy-microk8s.sh redis-single delete
+```
+
+## Tests
+
+Packaging tests from repo root:
+
+```bash
+python3 -m unittest -v integration-prototypes/tests/test_client_packaging.py
+```
+
+Per-scenario tests are documented in each project README.

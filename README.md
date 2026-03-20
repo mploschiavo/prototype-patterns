@@ -1,8 +1,10 @@
 # Prototype Patterns (Multi-Language)
 
-This repository is an academic prototype workspace that includes:
+This repository is an academic prototype workspace for design patterns, language-specific services, integration infrastructure, and observability demos.
 
-- 24 design pattern examples for each language:
+## What Is Included
+
+- 24 design pattern examples in each language:
   - C#
   - Java
   - Python
@@ -10,45 +12,44 @@ This repository is an academic prototype workspace that includes:
 - Language-specific REST services in two variants:
   - `hello world`
   - `hello world with logger`
-- Infra deployment scaffolding aligned to `pelican38`-style scenarios:
-  - `infra/docker`
-  - `infra/compose`
-  - `infra/k8s`
+- Integration prototypes for Kafka, Postgres, Redis, OpenSearch, and Ollama
+- Infra scaffolding for local Docker and MicroK8s
+- Cloud setup examples (AWS, Azure, GCP)
+- Observability demo stack (Grafana + Prometheus + Loki + Tempo + OTel Collector)
 
 ## Repository Layout
 
 - `csharp/`
-  - `patterns/`
-  - `services/hello-world/`
-  - `services/hello-world-logger/`
 - `java/`
-  - `patterns/`
-  - `services/hello-world/`
-  - `services/hello-world-logger/`
 - `python/`
-  - `patterns/`
-  - `services/hello-world/`
-  - `services/hello-world-logger/`
 - `nodejs/`
-  - `patterns/`
-  - `services/hello-world/`
-  - `services/hello-world-logger/`
 - `integration-prototypes/`
-  - `infra/` (Kafka/Postgres/Redis/OpenSearch/Ollama scenarios for Docker + microk8s)
-  - `python/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
-  - `nodejs/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
-  - `java/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
-  - `csharp/` (Kafka clients + Postgres/Redis/OpenSearch REST + Ollama MCP prototypes)
 - `examples/cloud-k8s-setup/`
-  - bash + Python cluster setup examples for AWS/Azure/GCP
 - `observability-demo/hello-world-stack/`
-  - local + microk8s Grafana/Prometheus/Loki/Tempo/OTel Collector demo stack
 
-Each project has its own README with run/test/deploy commands.
+Each folder contains its own README with language or scenario-specific details.
 
-## Explore One Pattern At A Time
+## Prerequisites
 
-Use the root dispatcher script to run a single pattern in any language:
+Recommended baseline tools:
+
+- `git`
+- `docker` + `docker compose`
+- `python3`
+- `node` + `npm`
+- `java` (JDK 21) and optionally `mvn` for integration Java projects
+- `dotnet` (for C# projects)
+
+For Kubernetes scenarios:
+
+- `kubectl` or `microk8s kubectl`
+- MicroK8s with DNS and storage enabled (recommended for local cluster demos)
+
+## Quick Start By Goal
+
+### 1) Explore One Pattern At A Time
+
+Use the root dispatcher script:
 
 ```bash
 ./scripts/run-pattern.sh python --list
@@ -58,12 +59,57 @@ Use the root dispatcher script to run a single pattern in any language:
 ./scripts/run-pattern.sh csharp --pattern adapter
 ```
 
-Language-specific scripts are available under:
+### 2) Run Hello World Services (Any Language)
 
-- `python/patterns/scripts/run-pattern.sh`
-- `nodejs/patterns/scripts/run-pattern.sh`
-- `java/patterns/scripts/run-pattern.sh`
-- `csharp/patterns/scripts/run-pattern.sh`
+Example flow (Python):
+
+```bash
+cd python/services/hello-world
+python3 src/app.py
+# open http://localhost:8080/
+```
+
+Containerized options are available in each service folder:
+
+- `infra/docker/run.sh`
+- `infra/compose/docker-compose.yml`
+- `infra/k8s/`
+
+### 3) Run Integration Scenarios (Kafka/Postgres/Redis/OpenSearch/Ollama)
+
+See the detailed runbook in `integration-prototypes/README.md`.
+
+Fast path:
+
+```bash
+cd integration-prototypes
+
+# Start infra scenario locally
+./infra/scripts/deploy-local.sh postgres
+
+# Run a language client against that infra
+./scripts/run-client-local.sh python postgres-rest
+```
+
+### 4) Run Observability Demo
+
+```bash
+cd observability-demo/hello-world-stack
+./docker/run.sh
+```
+
+Then use:
+
+- Demo app: `http://localhost:8088`
+- Grafana: `http://localhost:3000`
+
+## Run Tests
+
+Run all repository test suites:
+
+```bash
+./run-all-tests.sh
+```
 
 ## Pattern Coverage (Per Language)
 
@@ -91,51 +137,6 @@ Language-specific scripts are available under:
 22. Iterator
 23. Mediator
 24. Memento
-
-## Test Commands
-
-Run everything automatically:
-
-```bash
-./run-all-tests.sh
-```
-
-Python:
-
-```bash
-cd python/patterns
-PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_patterns_unittest.py' -v
-
-cd ../services/hello-world
-python3 -m unittest discover -s tests -v
-
-cd ../hello-world-logger
-python3 -m unittest discover -s tests -v
-```
-
-Node.js:
-
-```bash
-cd nodejs/patterns && npm test
-cd ../services/hello-world && npm test
-cd ../hello-world-logger && npm test
-```
-
-Java:
-
-```bash
-cd java/patterns && ./scripts/test.sh
-cd ../services/hello-world && ./scripts/test.sh
-cd ../hello-world-logger && ./scripts/test.sh
-```
-
-C#:
-
-```bash
-cd csharp/patterns && dotnet test PrototypePatterns.sln
-cd ../services/hello-world && dotnet test HelloWorldService.sln
-cd ../hello-world-logger && dotnet test HelloWorldLoggerService.sln
-```
 
 ## Licensing
 
