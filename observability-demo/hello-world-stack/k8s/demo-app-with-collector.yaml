@@ -26,6 +26,24 @@ spec:
               value: http://localhost:4318/v1/traces
           ports:
             - containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
           volumeMounts:
             - name: app-logs
               mountPath: /var/log/demo-app
@@ -36,6 +54,21 @@ spec:
           ports:
             - containerPort: 4318
             - containerPort: 8889
+          startupProbe:
+            tcpSocket:
+              port: 4318
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            tcpSocket:
+              port: 4318
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 4318
+            initialDelaySeconds: 20
+            periodSeconds: 20
           volumeMounts:
             - name: collector-config
               mountPath: /etc/otelcol/config.yaml

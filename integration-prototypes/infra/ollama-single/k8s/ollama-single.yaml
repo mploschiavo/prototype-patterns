@@ -52,6 +52,21 @@ spec:
           image: ollama/ollama:0.3.14
           ports:
             - containerPort: 11434
+          startupProbe:
+            tcpSocket:
+              port: 11434
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            tcpSocket:
+              port: 11434
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 11434
+            initialDelaySeconds: 20
+            periodSeconds: 20
           volumeMounts:
             - name: ollama-data
               mountPath: /root/.ollama

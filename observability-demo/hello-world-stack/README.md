@@ -9,6 +9,11 @@ Stack components:
 - OpenTelemetry Collector (telemetry routing)
 - Demo app with intentional normal/slow/error paths
 
+## Health Model
+
+- Docker Compose services define container `healthcheck` probes.
+- MicroK8s deployments include `startupProbe`, `readinessProbe`, and `livenessProbe`.
+
 ## Local Run (Docker Compose)
 
 ```bash

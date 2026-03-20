@@ -57,6 +57,21 @@ spec:
               value: prototype_pass
           ports:
             - containerPort: 5432
+          startupProbe:
+            tcpSocket:
+              port: 5432
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 20
+            periodSeconds: 20
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

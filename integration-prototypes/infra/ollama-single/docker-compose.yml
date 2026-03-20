@@ -7,12 +7,19 @@ services:
     volumes:
       - ollama_data:/root/.ollama
       - ./seed:/seed:ro
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
 
   ollama-seed:
     image: ollama/ollama:0.3.14
     container_name: prototype-ollama-seed
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
     volumes:

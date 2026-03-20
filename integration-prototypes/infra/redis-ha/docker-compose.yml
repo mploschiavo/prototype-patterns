@@ -7,6 +7,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_ha_1_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   redis-2:
     image: redis:7-alpine
@@ -16,6 +22,12 @@ services:
       - "6380:6379"
     volumes:
       - redis_ha_2_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   redis-3:
     image: redis:7-alpine
@@ -25,14 +37,23 @@ services:
       - "6381:6379"
     volumes:
       - redis_ha_3_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "127.0.0.1", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   redis-cluster-init:
     image: redis:7-alpine
     container_name: redis-ha-init
     depends_on:
-      - redis-1
-      - redis-2
-      - redis-3
+      redis-1:
+        condition: service_healthy
+      redis-2:
+        condition: service_healthy
+      redis-3:
+        condition: service_healthy
     entrypoint: ["/bin/sh", "-c"]
     command: |
       until redis-cli -h redis-1 -p 6379 ping; do sleep 1; done

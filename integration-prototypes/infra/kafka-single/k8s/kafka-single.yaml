@@ -42,6 +42,11 @@ spec:
           ports:
             - containerPort: 9092
             - containerPort: 9093
+          startupProbe:
+            tcpSocket:
+              port: 9092
+            failureThreshold: 30
+            periodSeconds: 2
           readinessProbe:
             tcpSocket:
               port: 9092

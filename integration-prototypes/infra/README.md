@@ -7,6 +7,12 @@ Deployment modes:
 - Local Docker Compose
 - MicroK8s (kustomize manifests)
 
+## Health Model
+
+- Docker Compose services include `healthcheck` definitions.
+- Seed/init jobs that depend on core services use `depends_on` with `service_healthy` where applicable.
+- MicroK8s manifests include `startupProbe`, `readinessProbe`, and `livenessProbe` on infra `Deployment`/`StatefulSet` workloads.
+
 ## Scenarios
 
 - `kafka-single`: Single-node Kafka (KRaft)

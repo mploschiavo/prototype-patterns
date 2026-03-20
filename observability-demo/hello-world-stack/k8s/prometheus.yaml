@@ -19,6 +19,24 @@ spec:
           args: ["--config.file=/etc/prometheus/prometheus.yml"]
           ports:
             - containerPort: 9090
+          startupProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 20
+            periodSeconds: 20
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus/prometheus.yml
