@@ -1,0 +1,9 @@
+{
+  "name": "nodejs-prototype-patterns",
+  "version": "0.1.0",
+  "description": "Prototype implementations of design patterns in Node.js",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}

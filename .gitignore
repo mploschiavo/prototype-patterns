@@ -1,0 +1,19 @@
+# Python
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+
+# Node
+**/node_modules/
+
+# Java
+**/build/
+
+# .NET
+**/bin/
+**/obj/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
