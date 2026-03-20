@@ -10,3 +10,17 @@ Scenarios included:
 - `opensearch-single-rest`: REST service reading one document value from single-node OpenSearch
 - `opensearch-ha-rest`: REST service reading one document value from OpenSearch cluster
 - `ollama-mcp-server`: MCP-style agent server with RAG + Ollama tool calls
+
+Each project includes container packaging in `docker/` and `k8s/`.
+
+Run locally:
+
+```bash
+../scripts/run-client-local.sh python <project> [producer|consumer]
+```
+
+Deploy to MicroK8s:
+
+```bash
+../scripts/deploy-client-microk8s.sh python <project> [apply|delete]
+```

@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: java-kafka-ha-producer
+  namespace: integration-clients
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: producer
+          image: prototype/java-kafka-ha:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_CLIENT_MODE
+              value: "producer"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-ha-bootstrap.integration-kafka-ha.svc.cluster.local:9092"
+            - name: KAFKA_TOPIC
+              value: "prototype-topic-ha"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: java-kafka-ha-consumer
+  namespace: integration-clients
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: consumer
+          image: prototype/java-kafka-ha:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_CLIENT_MODE
+              value: "consumer"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-ha-bootstrap.integration-kafka-ha.svc.cluster.local:9092"
+            - name: KAFKA_TOPIC
+              value: "prototype-topic-ha"

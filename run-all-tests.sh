@@ -55,6 +55,7 @@ if has_cmd python3; then
   run_suite "Python Integration OpenSearch Single REST" "integration-prototypes/python/opensearch-single-rest" "python3 -m unittest -v test_opensearch_single_rest.py"
   run_suite "Python Integration OpenSearch HA REST" "integration-prototypes/python/opensearch-ha-rest" "python3 -m unittest -v test_opensearch_ha_rest.py"
   run_suite "Python Integration Ollama MCP Server" "integration-prototypes/python/ollama-mcp-server" "python3 -m unittest -v test_ollama_mcp_server.py"
+  run_suite "Integration Client Packaging" "integration-prototypes" "python3 -m unittest -v tests/test_client_packaging.py"
   run_suite "Python Cloud K8s Setup Scripts" "examples/cloud-k8s-setup" "PYTHONPATH=. python3 -m unittest -v tests/test_cloud_setup.py"
 else
   skip_suite "Python Patterns" "python3 not installed"
@@ -68,6 +69,7 @@ else
   skip_suite "Python Integration OpenSearch Single REST" "python3 not installed"
   skip_suite "Python Integration OpenSearch HA REST" "python3 not installed"
   skip_suite "Python Integration Ollama MCP Server" "python3 not installed"
+  skip_suite "Integration Client Packaging" "python3 not installed"
   skip_suite "Python Cloud K8s Setup Scripts" "python3 not installed"
 fi
 

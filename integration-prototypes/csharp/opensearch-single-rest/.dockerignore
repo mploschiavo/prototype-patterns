@@ -1,0 +1,10 @@
+.git
+__pycache__
+*.pyc
+node_modules
+tests
+target
+bin
+obj
+*.test.js
+test_*.py

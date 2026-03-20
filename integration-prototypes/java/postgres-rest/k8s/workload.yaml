@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-postgres-rest
+  namespace: integration-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-postgres-rest
+  template:
+    metadata:
+      labels:
+        app: java-postgres-rest
+    spec:
+      containers:
+        - name: app
+          image: prototype/java-postgres-rest:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: POSTGRES_JDBC_URL
+              value: "jdbc:postgresql://postgres.integration-postgres.svc.cluster.local:5432/prototype_db"
+            - name: POSTGRES_USER
+              value: "prototype_user"
+            - name: POSTGRES_PASSWORD
+              value: "prototype_pass"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-postgres-rest
+  namespace: integration-clients
+spec:
+  selector:
+    app: java-postgres-rest
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

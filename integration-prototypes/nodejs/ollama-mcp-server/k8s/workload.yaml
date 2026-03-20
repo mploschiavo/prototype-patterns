@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-ollama-mcp-server
+  namespace: integration-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-ollama-mcp-server
+  template:
+    metadata:
+      labels:
+        app: nodejs-ollama-mcp-server
+    spec:
+      containers:
+        - name: app
+          image: prototype/nodejs-ollama-mcp-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8090
+          env:
+            - name: PORT
+              value: "8090"
+            - name: OLLAMA_URL
+              value: "http://ollama.integration-ollama-single.svc.cluster.local:11434"
+            - name: OLLAMA_MODEL
+              value: "tinyllama"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-ollama-mcp-server
+  namespace: integration-clients
+spec:
+  selector:
+    app: nodejs-ollama-mcp-server
+  ports:
+    - name: http
+      port: 8090
+      targetPort: 8090

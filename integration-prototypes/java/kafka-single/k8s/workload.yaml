@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: java-kafka-single-producer
+  namespace: integration-clients
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: producer
+          image: prototype/java-kafka-single:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_CLIENT_MODE
+              value: "producer"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-single.integration-kafka-single.svc.cluster.local:9092"
+            - name: KAFKA_TOPIC
+              value: "prototype-topic"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: java-kafka-single-consumer
+  namespace: integration-clients
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: consumer
+          image: prototype/java-kafka-single:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_CLIENT_MODE
+              value: "consumer"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-single.integration-kafka-single.svc.cluster.local:9092"
+            - name: KAFKA_TOPIC
+              value: "prototype-topic"

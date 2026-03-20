@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-postgres-rest
+  namespace: integration-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-postgres-rest
+  template:
+    metadata:
+      labels:
+        app: nodejs-postgres-rest
+    spec:
+      containers:
+        - name: app
+          image: prototype/nodejs-postgres-rest:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PG_CONNECTION_STRING
+              value: "postgresql://prototype_user:prototype_pass@postgres.integration-postgres.svc.cluster.local:5432/prototype_db"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-postgres-rest
+  namespace: integration-clients
+spec:
+  selector:
+    app: nodejs-postgres-rest
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

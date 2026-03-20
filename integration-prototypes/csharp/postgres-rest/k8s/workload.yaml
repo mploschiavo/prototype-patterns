@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csharp-postgres-rest
+  namespace: integration-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csharp-postgres-rest
+  template:
+    metadata:
+      labels:
+        app: csharp-postgres-rest
+    spec:
+      containers:
+        - name: app
+          image: prototype/csharp-postgres-rest:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: POSTGRES_CONNECTION_STRING
+              value: "Host=postgres.integration-postgres.svc.cluster.local;Port=5432;Username=prototype_user;Password=prototype_pass;Database=prototype_db"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: csharp-postgres-rest
+  namespace: integration-clients
+spec:
+  selector:
+    app: csharp-postgres-rest
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
